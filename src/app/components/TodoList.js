@@ -13,14 +13,16 @@ import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import EditIcon from '@material-ui/icons/Edit';
+
 import { useSelector } from 'react-redux';
 
 import AddItem from './AddItem';
+import DeleteTodo from './DeleteTodo';
 
 function createData(summary, priority, createdOn, dueBy) {
   return { summary, priority, createdOn, dueBy };
@@ -53,7 +55,7 @@ function stableSort(array, comparator) {
 }
 
 const headCells = [
-  { id: 'summary', numeric: false, disablePadding: true, label: 'Summary' },
+  { id: 'summary', numeric: false, disablePadding: false, label: 'Summary' },
   { id: 'priority', numeric: false, disablePadding: false, label: 'Priority' },
   { id: 'createdOn', numeric: false, disablePadding: false, label: 'Created On' },
   { id: 'dueBy', numeric: false, disablePadding: false, label: 'Due By' },
@@ -62,7 +64,7 @@ const headCells = [
 
 
 function EnhancedTableHead(props) {
-  const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const { classes, order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -70,14 +72,6 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all desserts' }}
-          />
-        </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
@@ -200,6 +194,10 @@ const useStyles = makeStyles((theme) => ({
     top: 20,
     width: 1,
   },
+  actions:{
+    display: "flex",
+    alignItems: "center"
+  }
 }));
 
 export default function EnhancedTable() {
@@ -237,26 +235,6 @@ export default function EnhancedTable() {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1),
-      );
-    }
-
-    setSelected(newSelected);
-  };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -272,26 +250,23 @@ export default function EnhancedTable() {
     return (
       <TableRow
         hover
-        onClick={(event) => handleClick(event, row.summary)}
+        // onClick={(event) => handleClick(event, row.summary)}
         role="checkbox"
         aria-checked={isItemSelected}
         tabIndex={-1}
         key={row.summary}
         selected={isItemSelected}
       >
-        <TableCell padding="checkbox">
-          <Checkbox
-            checked={isItemSelected}
-            inputProps={{ 'aria-labelledby': labelId }}
-          />
-        </TableCell>
-        <TableCell component="th" id={labelId} scope="row" padding="none">
+        <TableCell component="th" id={labelId} scope="row" padding="normal">
           {row.summary}
         </TableCell>
         <TableCell align="left">{row.priority}</TableCell>
         <TableCell align="left">{row.createdOn}</TableCell>
         <TableCell align="left">{row.dueBy}</TableCell>
-        <TableCell align="left">Actions here</TableCell>
+        <TableCell align="left" className={classes.actions}>
+          <EditIcon />
+          <DeleteTodo summary={row.summary}/>
+        </TableCell>
       </TableRow>
     )
   }

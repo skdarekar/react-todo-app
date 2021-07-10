@@ -14,10 +14,15 @@ export const todoSlice = createSlice({
     reducers: {
         addTask: (state, action) => {
             const createdOn = new Date().toLocaleDateString();
-            state.tasks = [...state.tasks, {...action.payload, createdOn }]
+            state.tasks = [...state.tasks, {...action.payload, createdOn, currentState: "pending" }]
         },
         deleteTask: (state, action) => {
-
+            //considering summary as unique for each task
+            const deleteIndex = state.tasks.findIndex(task => task.summary === action.payload.summary)
+            if(deleteIndex !== -1){
+                console.log(deleteIndex)
+                state.tasks.splice(deleteIndex, 1)
+            }
         },
     }
 })
